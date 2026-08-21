@@ -16,13 +16,14 @@ for nome, df in [('formulario_digital', formulario), ('atendimento_manual', aten
     print(df.isnull().sum())
     print('\nAmostra (5 primeiras linhas):')
     print(df.head())
-    print('\n\n=== INVESTIGAÇÃO DE DADOS: coluna "nota" do atendimento(valores únicos) ===')
-    print(sorted(atendimento['nota'].dropna().unique(), key=str))
 
-    print ('\n=== INVESTIGAÇÃO DE DADOS: formatos de data em atendimento_manual (amostra) ===')
-    print(atendimento['data'].unique()[:20])
+print('\n\n=== INVESTIGAÇÃO DE DADOS: coluna "nota" do atendimento (valores únicos) ===')
+print(sorted(atendimento['nota'].dropna().unique(), key=str))
 
-    print ('\n=== INVESTIGAÇÃO DE DADOS: nomes de produto em cada fonte ===')
-    print("formulario:", sorted(formulario['produto'].unique()))
-    print("atendimento:", sorted(atendimento['produto_investimento'].unique()))
-    print("extrato:", sorted(extrato['produto_codigo'].unique()))
+print('\n=== INVESTIGAÇÃO DE DADOS: formatos de data em atendimento_manual (amostra) ===')
+print(atendimento['data'].unique()[:20])
+
+print('\n=== INVESTIGAÇÃO DE DADOS: nomes de produto em cada fonte ===')
+print("formulario:", sorted(formulario['produto'].unique()))
+print("atendimento:", sorted(atendimento['produto_investimento'].unique()))
+print("extrato:", sorted(extrato['produto_codigo'].unique()))
