@@ -1,23 +1,48 @@
 # Registro de Decisões: Tratamento e Limpeza de Dados
 
-Durante a etapa de exploração dos dados brutos (via script de profilaxia `checar_dados.py`), identifiquei algumas inconsistências esperadas ao lidar com fontes distintas (formulário, atendimento manual e extrato). 
+Durante a etapa de exploração dos dados brutos, realizada por meio do script de profilaxia `checar_dados.py`, foram identificadas inconsistências decorrentes das diferentes origens dos dados (formulário digital, atendimento manual e extrato do sistema).
 
-Abaixo, registro como decidi tratar cada anomalia para garantir a integridade da base unificada:
+Abaixo, estão documentadas as principais decisões tomadas durante o processo de tratamento e unificação das bases.
 
 ### 1. Chave de Cliente (ID)
-- **O Cenário:** O `formulario_digital` traz um prefixo "C" (ex: C00103), enquanto o `atendimento_manual` e o `extrato_sistema` trazem apenas números (int).
-- **A Decisão:** Para conseguir cruzar (fazer o *merge*) das três bases, decidi extrair apenas os dígitos do formulário e criar uma coluna padrão `id_cliente_num` (inteiro) em todas as tabelas. Essa será nossa chave primária.
+
+- **O Cenário:** O `formulario_digital` utiliza um prefixo "C" (ex.: `C00103`), enquanto o `atendimento_manual` e o `extrato_sistema` utilizam apenas valores numéricos.
+
+- **A Decisão:** Para permitir o cruzamento das três bases, foram extraídos apenas os dígitos do identificador presente no formulário. Em seguida, foi criada a coluna padronizada `id_cliente_num`, com tipo inteiro, utilizada como chave de integração entre as tabelas.
 
 ### 2. Tratamento das Notas de Satisfação
-- **O Cenário:** A coluna `nota` no atendimento manual deveria ir de 0 a 10, mas encontrei valores como `'dez'` (texto) e `'11'` (fora da escala).
-- **A Decisão:** 
-  - Converti `'dez'` para o número `10`, pois a intenção do cliente é clara. 
-  - Registros com nota `'11'` foram transformados em nulos (NaN) para não enviesar a média de satisfação, mas a linha do cliente foi mantida para não perdermos o volume de atendimentos daquele produto.
+
+- **O Cenário:** A coluna `nota` do atendimento manual deveria apresentar valores entre 0 e 10, porém foram encontrados registros como `'dez'` (texto) e `'11'` (fora da escala).
+
+- **A Decisão:**
+  - O valor `'dez'` foi convertido para `10`, pois representa claramente uma nota válida.
+  - O valor `'11'` foi convertido para nulo (`NaN`), evitando distorções no cálculo da média de satisfação.
+  - O registro do cliente foi mantido para preservar o volume de atendimentos e permitir análises posteriores.
 
 ### 3. Inconsistência nas Datas
-- **O Cenário:** A inserção manual gerou formatos variados (ex: `2026-03-01`, `02/03/2026`, `10-Mar-26`).
-- **A Decisão:** Criei uma função que tenta converter a string iterando por uma lista de formatos conhecidos. O que não der "match" vira nulo (NaT - Not a Time), permitindo analisar a sujeira sem quebrar o pipeline.
+
+- **O Cenário:** A inserção manual resultou em diferentes formatos de data, como `2026-03-01`, `02/03/2026` e `10-Mar-26`.
+
+- **A Decisão:** Foi criada uma função de conversão que tenta interpretar as datas utilizando uma lista de formatos conhecidos. Valores que não correspondem a nenhum formato válido são convertidos para `NaT` (*Not a Time*), permitindo preservar o registro sem interromper a execução do pipeline.
 
 ### 4. Padronização de Produtos
-- **O Cenário:** O extrato traz códigos como `PRD_CDB`, e o atendimento traz texto livre com erros de digitação (ex: `c.o.e.`, `cdb`).
-- **A Decisão:** Fiz um mapeamento (*de-para*) forçando os nomes para as 5 categorias oficiais encontradas no formulário (CDB, COE, Carteira Administrada, Fundos, Tesouro Direto). Para garantir, passei tudo do atendimento para minúsculo antes de mapear.
+
+- **O Cenário:** O extrato utiliza códigos como `PRD_CDB`, enquanto o atendimento manual contém descrições em texto livre e possíveis variações ou erros de digitação, como `c.o.e.` e `cdb`.
+
+- **A Decisão:** Foi criado um mapeamento (*de-para*) para padronizar os produtos de acordo com as cinco categorias oficiais identificadas no formulário:
+
+  - CDB
+  - COE
+  - Carteira Administrada
+  - Fundos
+  - Tesouro Direto
+
+  Antes do mapeamento, os valores provenientes do atendimento manual foram convertidos para letras minúsculas, reduzindo diferenças causadas por capitalização.
+
+### 5. Limitações e Próximos Passos
+
+Para manter o pipeline simples e resolver o problema dentro do escopo do projeto, a padronização dos nomes dos produtos foi realizada inicialmente utilizando um dicionário estático (*hardcoded*).
+
+Em um ambiente de produção com maior volume e variedade de dados, seria recomendável substituir ou complementar essa abordagem por técnicas de similaridade de texto (*Fuzzy Matching*), permitindo identificar automaticamente variações e possíveis erros de digitação.
+
+Essa abordagem também reduziria a necessidade de manutenção manual do dicionário à medida que novas variações de produtos fossem identificadas.
