@@ -24,13 +24,14 @@ def normalizar_nota(valor):
         return 10.0
     try:
         nota = float(texto)
+
         return nota if 0 <= nota <= 10 else None
     except ValueError:
-            return None
+        return None
 
-    atendimento ['nota_limpa'] = atendimento['nota'].apply(normalizar_nota)
+atendimento['nota_limpa'] = atendimento['nota'].apply(normalizar_nota)
 
-    formatos_data = ['%Y-%m-%d', '%d/%m/%Y', '%d-%b-%y']
+formatos_data = ['%Y-%m-%d', '%d/%m/%Y', '%d-%b-%y']
 
 def normalizar_data(valor):
     if pd.isna(valor):
@@ -39,10 +40,10 @@ def normalizar_data(valor):
         try:
             return pd.to_datetime(str(valor).strip(), format=fmt)
         except ValueError:
-                continue
+            continue
     return pd.NaT
 
-    atendimento['data_limpa'] = atendimento['data'].apply(normalizar_data)
+atendimento['data_limpa'] = atendimento['data'].apply(normalizar_data)
 
 mapa_atendimento = {
     'cdb': 'CDB', 'c.d.b.': 'CDB',
@@ -60,11 +61,12 @@ mapa_extrato = {
 extrato['produto_limpo'] = extrato['produto_codigo'].map(mapa_extrato)
 
 df_final = extrato.merge(formulario, on='id_cliente_num', how='outer', suffixes=('_extrato', '_form'))
-df_final = df_final.merge(atendimento, on='id_cliente_num', how='outer')
+df_final = df_final.merge(atendimento, on='id_cliente_num', how='outer', suffixes=('', '_atendimento'))
+df_final.rename(columns={'produto_limpo_extrato': 'produto_extrato', 'produto_limpo': 'produto_atendimento'}, inplace=True)
 
 os.makedirs('data/clean', exist_ok=True)
 df_final.to_csv('data/clean/base_consolidada.csv', index=False)
-    
+
 print("=== PIPELINE CONCLUÍDO ===")
 print(f"Total de registros na base consolidada: {len(df_final)}")
 print("Arquivo salvo em: data/clean/base_consolidada.csv")
