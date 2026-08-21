@@ -85,6 +85,6 @@ Padronização Categórica: Nomes de produtos preenchidos manualmente apresentav
 
 * **Como dividi minhas ~5 horas de trabalho:**
   * **40% do tempo:** Olhando os dados brutos, entendendo a bagunça que estava nas planilhas e mapeando o que precisava ser limpo.
-  * **40% do tempo:** Codando o pipeline de unificação (ETL) em Python para juntar tudo sem perder informação.
-  * **20% do tempo:** Analisando os números no terminal, tirando os *insights* de negócio e estruturando a entrega.
-**O que dá para melhorar (Limitação Atual):** Pra resolver rápido e focar no problema principal, fiz a normalização dos nomes de produtos usando um dicionário estático (*hardcoded*). Se fosse um ambiente de Big Data rodando em produção no banco com milhares de variações, o ideal seria implementar algum algoritmo de similaridade de texto (*Fuzzy Matching*) para automatizar essa limpeza.
+* **40% do tempo:** Codando o pipeline de unificação (ETL) em Python para juntar tudo sem perder informação.
+* **20% do tempo:** Analisando os números no terminal, tirando os *insights* de negócio e estruturando a entrega.
+* **O que dá para melhorar (Limitação Atual):** Para resolver rapidamente e focar no problema principal, fiz a normalização dos nomes dos produtos utilizando um dicionário estático (*hardcoded*). Em um ambiente de Big Data, com milhares de variações em produção, o ideal seria implementar um algoritmo de similaridade de texto (*Fuzzy Matching*) para automatizar esse processo de limpeza.
