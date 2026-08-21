@@ -26,7 +26,6 @@ case-itau-satisfacao-investimentos/
 │   └── analisando_negocio.py       # Script analítico focado na resposta de negócio (trimestres/motivos)
 │
 ├── DECISOES.md                     # Documentação das premissas e escolhas de engenharia
-├── ENTREGA_FINAL.md                # Entrega executiva, relato de IA e gestão de tempo
 ├── requirements.txt                # Dependências do projeto (pandas, openpyxl, etc.)
 └── README.md                       # Visão geral do projeto
 
