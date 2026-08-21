@@ -5,9 +5,10 @@ df = pd.read_csv('data/clean/base_consolidada.csv')
 
 print("=== INVESTIGAÇÃO: QUEDA DE SATISFAÇÃO NO ÚLTIMO TRIMESTRE ===\n")
 
-df['nota_manual_num'] = pd.to_numeric(df['nota'].replace('dez', 10, regex=True), errors='coerce')
-
-df['nota_final'] = df['nota_satisfacao'].fillna(df['nota_manual_num'])
+df['nota_final'] = pd.to_numeric(
+    df['nota_satisfacao'],
+    errors='coerce'
+)
 
 if 'trimestre_ref' in df.columns:
     print("1. Como as notas se comportaram ao longo dos trimestres?")
@@ -23,9 +24,9 @@ if 'trimestre_ref' in df.columns:
 
 notas_ruins = df[df['nota_final'] <= 6]
 
-if 'motivo_contato' in df.columns:
+if 'principal_motivo_contato' in df.columns:
     print("\n2. Principais motivos de contato de quem deu nota baixa (<= 6):")
-    motivos = notas_ruins['motivo_contato'].value_counts().head(5)
+    motivos = notas_ruins['principal_motivo_contato'].value_counts().head(5)
     print(motivos)
     print("-" * 50)
 
@@ -39,3 +40,52 @@ if 'tempo_resolucao_horas' in df.columns:
         volume=('nota_final', 'count')
     )
     print(impacto_demora)
+
+print("\n4. Satisfação por produto no último trimestre:")
+
+ultimo_trimestre = df[
+    df['trimestre_ref'] == df['trimestre_ref'].max()
+]
+
+produto_ultimo_tri = (
+    ultimo_trimestre
+    .groupby('produto')
+    .agg(
+        nota_media=('nota_final', 'mean'),
+        volume=('nota_final', 'count')
+    )
+    .sort_values('nota_media')
+)
+
+print(produto_ultimo_tri.to_string())
+print("-" * 50)
+print("\n5. Relação entre produto e tempo de resolução no último trimestre:")
+
+produto_tempo = (
+    ultimo_trimestre
+    .groupby('produto')
+    .agg(
+        nota_media=('nota_final', 'mean'),
+        tempo_medio_resolucao=('tempo_resolucao_horas', 'mean'),
+        volume=('nota_final', 'count')
+    )
+    .sort_values('nota_media')
+)
+
+print(produto_tempo.to_string())
+print("-" * 50)
+print("\n6. Evolução da satisfação por produto:")
+
+produto_trimestre = (
+    df
+    .groupby(['trimestre_ref', 'produto'])
+    .agg(
+        nota_media=('nota_final', 'mean'),
+        volume=('nota_final', 'count')
+    )
+    .reset_index()
+    .sort_values(['trimestre_ref', 'nota_media'])
+)
+
+print(produto_trimestre.to_string(index=False))
+print("-" * 50)
